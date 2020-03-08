@@ -10,8 +10,8 @@ import numpy as np
 variabila=0
 
 filters=['self.blur_image_low()','self.blur_image_mid()','self.blur_image_high()','self.black_white()','self.invert_filter()',
-'self.sepia_filter()']
-nume=['BlurLow','BlurMid','BlurHigh','Black&White','Inverted','Sepia']
+'self.sepia_filter()','self.bleached()']
+nume=['BlurLow','BlurMid','BlurHigh','Black&White','Inverted','Sepia','Bleached']
 
  
 class App:
@@ -23,8 +23,14 @@ class App:
 		self.cv_img = cv2.cvtColor(cv2.imread("111.jpg"), cv2.COLOR_BGR2RGB)
 		#resize
 		self.scale_percent = 30
-		self.width = int(self.cv_img.shape[1] * self.scale_percent / 60)
-		self.height = int(self.cv_img.shape[0] * self.scale_percent / 60)
+		self.div=(100* self.cv_img.shape[1])/2739
+		
+		print(self.cv_img.shape[1])
+		print(self.cv_img.shape[0])
+
+
+		self.width = int(self.cv_img.shape[1] * self.scale_percent / self.div)
+		self.height = int(self.cv_img.shape[0] * self.scale_percent / self.div)
 		self.dim = (self.width, self.height)
 		self.resized = cv2.resize(self.cv_img, self.dim, interpolation = cv2.INTER_AREA)
 
@@ -118,15 +124,30 @@ class App:
 	def sepia_filter(self):
 		self.aux_resized=self.check_alpha_channel(self.resized)
 		self.width,self.height,self.channel=self.aux_resized.shape
-		self.blue=20
-		self.green=66
-		self.red=112
+		self.blue=20 
+		self.green=66 
+		self.red=112 
 		self.sepia_rgb=(self.red,self.green,self.blue,1)
 		self.overlay=np.full((self.width,self.height,4),self.sepia_rgb, dtype='uint8')
 		self.result=cv2.addWeighted(self.overlay,0.8,self.aux_resized,1.0,0,self.aux_resized)
 		self.photo = PIL.ImageTk.PhotoImage(image = PIL.Image.fromarray(self.result))
 		self.canvas.create_image(0, 0, image=self.photo, anchor=tkinter.NW)
 		print('sepia')
+
+	def bleached(self):
+		self.aux_resized=self.check_alpha_channel(self.resized)
+		self.width,self.height,self.channel=self.aux_resized.shape
+		self.blue=254
+		self.green=223 
+		self.red=185
+		self.bleached_rgb=(self.red,self.green,self.blue,1)
+		self.overlay=np.full((self.width,self.height,4),self.bleached_rgb, dtype='uint8')
+		self.result=cv2.addWeighted(self.overlay,0.3,self.aux_resized,1.0,0,self.aux_resized)
+		self.photo = PIL.ImageTk.PhotoImage(image = PIL.Image.fromarray(self.result))
+		self.canvas.create_image(0, 0, image=self.photo, anchor=tkinter.NW)
+		print('bleached')
+
+
 
 
 App(tkinter.Tk(), "Image filters ")
